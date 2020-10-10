@@ -1,7 +1,7 @@
 
 <template>
   <div>
-    <img class="foto" src="~/assets/kopekbanner.png">
+    <img class="foto" src="~/assets/kopekbanner.png" alt="">
     <hr>
     <h1>Yönlendiriliyor</h1>
   </div>
