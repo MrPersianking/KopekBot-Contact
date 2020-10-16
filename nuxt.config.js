@@ -1,5 +1,4 @@
 export default {
-  mode: "spa",
   target: "static",
   head: {
     title: "Köpek Bot Hata ve Öneri formu" || '',
