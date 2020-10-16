@@ -9,7 +9,7 @@ export default {
     ],
     link: [
       { rel: 'icon', href: './kopek.ico' },
-      {rel: 'stylesheet', href: "./fontawsome/css/all.css" }
+      {rel: 'stylesheet', href: "https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" }
     ]
   },
   /*
