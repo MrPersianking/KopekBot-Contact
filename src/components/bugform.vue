@@ -71,25 +71,26 @@
                     <label for="olan">Şu anda olan: </label><br><textarea class="textarea" type="text" v-model.trim="olan" placeholder="Şu anda olan" id="olan" style="width: 500px"></textarea>
                     <br>
                     <p class="control">
-                        <a @click="gonderbug"  class="button is-primary" :class="{ 'is-danger': this.$v.$invalid }" :disabled="this.$v.$invalid || submitStatus === 'PENDING' || submitStatus === 'ERROR'">
+                        <a @click="gonderbug"  class="button is-primary" :class="{ 'is-danger': this.$v.bug.$invalid }" :disabled="this.$v.bug.$invalid || submitStatus === 'PENDING' || submitStatus === 'ERROR'">
                             Gönder
                         </a>
                   </p>
-                  <div style="margin-top: 20px" class="notification is-danger" v-if="this.$v.$invalid">Lütfen bütün bölümleri doldurun</div>
+                  <div style="margin-top: 20px" class="notification is-danger" v-if="this.$v.bug.$invalid">Lütfen bütün bölümleri doldurun</div>
                 </div>
 
                 <!-- Öneri İşaretlindiğinde Çıkacak Bölüm -->
 
                 <div v-if="isBug === 'Oneri'" id="oneri" class="container">
-                    <label for="baslık">Başlık: </label><br><input class="input" type="text" placeholder="Başlık" id="baslık" style="width: 500px">
+                    <label for="baslık">Başlık: </label><br><input class="input" type="text" placeholder="Başlık" id="baslık" v-model.trim="baslikoner" style="width: 500px">
                     <br>
-                    <label for="desc">Açıklama: <textarea class="textarea" placeholder="Açıklama" id="desc"></textarea></label>
+                    <label for="desc">Açıklama: <textarea class="textarea" placeholder="Açıklama" id="desc" v-model.trim="desc"></textarea></label>
                     <br>
-                    <p class="control">
-                        <a @click="gonderoner" class="button is-primary">
-                            Gönder
-                        </a>
-                    </p>
+                  <p class="control">
+                    <a @click="gonderoner"  class="button is-primary" :class="{ 'is-danger': this.$v.oner.$invalid }" :disabled="this.$v.oner.$invalid || submitStatus === 'PENDING' || submitStatus === 'ERROR'">
+                      Gönder
+                    </a>
+                  </p>
+                  <div style="margin-top: 20px" class="notification is-danger" v-if="this.$v.oner.$invalid">Lütfen bütün bölümleri doldurun</div>
                 </div>
         </div>
     </main>
@@ -111,19 +112,19 @@
               olan:"",
               submitStatus: "",
               error: "",
-              title: "Teşekkürler..."
+              title: "Teşekkürler...",
+              baslikoner: "",
+              desc: ""
             }
         },
       validations: {
-        baslikbug: {
-          required
-        },
-        gereken: {
-          required
-        },
-        olan: {
-          required
-        }
+        baslikbug: {required},
+        gereken: {required},
+        olan: {required},
+        desc: {required},
+        baslikoner: {required},
+        bug: ['baslikbug', 'gereken', 'olan'],
+        oner: ['baslikoner', 'desc']
       },
         methods : {
             gizle(input){
@@ -139,7 +140,7 @@
             },
             gonderbug(){
                 this.$v.$touch()
-                if (!this.$v.$invalid) {
+                if (!this.$v.bug.$invalid) {
                   this.submitStatus = 'PENDING'
                   let steps = [];
                   for (let i = 1; this.adim + 1 > i; i++) {
@@ -167,28 +168,31 @@
                 }
             },
             gonderoner(){
-              this.submitStatus = 'PENDING'
-              let baslık = document.getElementById("baslık").value;
-              let acıklama = document.getElementById("desc").value;
-              axios.post("https://canary.discordapp.com/api/webhooks/764553541213618210/zP6qMAp3yv7GP14z7-mZauePTVgjqSpkQq7VawB8D9eBmzxP53uQpD4uYJKak0xJSNbc",{
-                'embeds': [
-                  {
-                    'title': 'Yeni ' + this.isBug,
-                    'description': '**Başlık :** '+ baslık +'\n\n**Açıklama:** ' + acıklama,
-                    'color': 14421486,
-                    'footer': {
-                      'text': 'Discord Username : ' + this.user +   '  ID : ' +  this.$auth.user.id
-                    }
-                  }]
-              })
-                .catch(err => {
-                  this.title = "🤔 Bir hata oluştu..."
-                  this.submitStatus = "ERROR"
-                  throw new Error(this.error = err.message)
+              this.$v.$touch()
+              if (!this.$v.oner.$invalid){
+                this.submitStatus = 'PENDING'
+                let baslık = document.getElementById("baslık").value;
+                let acıklama = document.getElementById("desc").value;
+                axios.post("https://canary.discordapp.com/api/webhooks/764553541213618210/zP6qMAp3yv7GP14z7-mZauePTVgjqSpkQq7VawB8D9eBmzxP53uQpD4uYJKak0xJSNbc",{
+                  'embeds': [
+                    {
+                      'title': 'Yeni ' + this.isBug,
+                      'description': '**Başlık :** '+ baslık +'\n\n**Açıklama:** ' + acıklama,
+                      'color': 14421486,
+                      'footer': {
+                        'text': 'Discord Username : ' + this.user +   '  ID : ' +  this.$auth.user.id
+                      }
+                    }]
                 })
-                .then(() => {
-                  this.submitStatus = 'SUBMIT'
-                })
+                  .catch(err => {
+                    this.title = "🤔 Bir hata oluştu..."
+                    this.submitStatus = "ERROR"
+                    throw new Error(this.error = err.message)
+                  })
+                  .then(() => {
+                    this.submitStatus = 'SUBMIT'
+                  })
+              }
             },
             uyarisil(){
                 if (this.uyari > 0){
